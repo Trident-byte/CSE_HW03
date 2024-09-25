@@ -11,28 +11,31 @@
 
 import java.util.Stack;
 import java.util.Scanner;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 public class BlockTracer{
     public static void main(String[] args){
         Stack<Block> blockStack = new Stack<Block>();
-        File file = new File(args[0]);
-        Scanner stdin;
         try{
-            stdin = new Scanner(file);
+            FileInputStream fis = new FileInputStream(args[0]); 
+            InputStreamReader inStream = new InputStreamReader(fis);
+            BufferedReader stdin = new BufferedReader(inStream);
             String line = "";
-            while(stdin.hasNextLine()){
-                line = stdin.nextLine();
+            while((line = stdin.readLine()) != null){
+                System.out.println(line);
                 if(line.contains("{")){
                     blockStack.push(new Block());
                 }
-                else if(line.contains("int")){
+                if(line.contains("int ")){
                     addNewVariable(line, blockStack.peek());
                 }
-                else if(line.contains("/*$print")){
+                if(line.contains("/*$print")){
                     printVariables(line, blockStack.peek());
                 }
-                else if(line.contains("}")){
+                if(line.contains("}")){
                     blockStack.pop();
                     if(blockStack.isEmpty()){
                         break;
@@ -42,7 +45,8 @@ public class BlockTracer{
             stdin.close();
         }
         catch(Exception e){
-            System.out.println("File not found");
+            // System.out.println("File not found");
+            e.printStackTrace();
         }
     }
 
@@ -52,7 +56,7 @@ public class BlockTracer{
         String assignment = line.substring(start, end).strip();//meant to remove the boiler plate to make it easier to process
         int equals = assignment.indexOf("=");
         String left = assignment.substring(0, equals).strip();
-        String right = assignment.substring(equals).strip();
+        String right = assignment.substring(equals + 1).strip();
         int initialValue = Integer.parseInt(right);
         try{
             curBlock.addVariable(left, initialValue);

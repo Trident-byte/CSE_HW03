@@ -80,7 +80,7 @@ public class Block{
             index++;
         }
         if(index == size){
-            throw new IllegalArgumentException("Variable is not found")
+            throw new IllegalArgumentException("Variable is not found");
         }
 
     }
