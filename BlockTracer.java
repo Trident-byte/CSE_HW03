@@ -25,11 +25,11 @@ public class BlockTracer{
             BufferedReader stdin = new BufferedReader(inStream);
             String line = "";
             while((line = stdin.readLine()) != null){
-                System.out.println(line);
+//                System.out.println(line);
                 if(line.contains("{")){
                     blockStack.push(new Block());
                 }
-                if(line.contains("int ")){
+                if(line.contains("int ") && !line.contains("/*$print")){
                     addNewVariable(line, blockStack.peek());
                 }
                 if(line.contains("/*$print")){
@@ -69,7 +69,7 @@ public class BlockTracer{
     private static void printVariables(String line, Block curBlock){
         //Add 5 to make the start after the print
         int start = line.indexOf("print") + 5;
-        int end = line.indexOf("/", start);
+        int end = line.indexOf("*", start);
         String argument = line.substring(start, end).strip(); //Represents the argument of the print
         if(argument.equals("LOCAL")){
             curBlock.printAllVariables();

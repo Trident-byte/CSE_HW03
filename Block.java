@@ -76,6 +76,7 @@ public class Block{
             if(var.getName().equals(name)){
                 heading();
                 entry(var);
+                break;
             }
             index++;
         }
@@ -112,6 +113,6 @@ public class Block{
     }
 
     private void entry(Variable var){
-        System.out.printf(" %-16s%-13d\n", var.getName(), var.getInitialValue());
+        System.out.printf("%-16s%-13d\n", var.getName(), var.getInitialValue());
     }
 }
