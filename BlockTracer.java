@@ -10,13 +10,12 @@
 **/
 
 import java.util.Stack;
-import java.util.Scanner;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 public class BlockTracer{
+    public static final int BLOCK_CAPACITY = 10;
     public static void main(String[] args){
         Stack<Block> blockStack = new Stack<Block>();
         try{
@@ -29,11 +28,11 @@ public class BlockTracer{
                 if(line.contains("{")){
                     blockStack.push(new Block());
                 }
-                if(line.contains("int ") && !line.contains("/*$print")){
-                    addNewVariable(line, blockStack.peek());
+                while(line.contains("int ") && !line.contains("/*$print")){
+                    line = addNewVariable(line, blockStack.peek());
                 }
-                if(line.contains("/*$print")){
-                    printVariables(line, blockStack.peek());
+                while (line.contains("/*$print")){
+                    line = printVariables(line, blockStack.peek());
                 }
                 if(line.contains("}")){
                     blockStack.pop();
@@ -50,10 +49,37 @@ public class BlockTracer{
         }
     }
 
-    private static void addNewVariable(String line, Block curBlock){
+    private static String addNewVariable(String line, Block curBlock){
         int start = line.indexOf("int") + 3; //start of the assignment
         int end = line.indexOf(";"); //end of the assignment
         String assignment = line.substring(start, end).strip();//meant to remove the boiler plate to make it easier to process
+        //keeps the rest in case it is needed
+        line = keepString(end, line);
+        String assignments[] = new String[BLOCK_CAPACITY];
+        int commaIndex = 0;
+        int index = 0;
+        while((commaIndex = assignment.indexOf(",", commaIndex + 1)) != -1){
+            assignments[index++] = assignment.substring(0, commaIndex);
+            assignment = keepString(commaIndex, line);
+            index++;
+        }
+        for(int i = 0; i < index; i++){
+            if(assignments[i].indexOf("=") != -1){
+                evalAssignment(assignments[i], curBlock);
+            }
+            else{
+                try{
+                    curBlock.addVariable(assignments[i], 0);
+                } 
+                catch(Exception e){
+                    System.out.println("Block is full");
+                }
+            }
+        }
+        return line;
+    }
+
+    private static void evalAssignment(String assignment, Block curBlock){
         int equals = assignment.indexOf("=");
         String left = assignment.substring(0, equals).strip();
         String right = assignment.substring(equals + 1).strip();
@@ -66,16 +92,22 @@ public class BlockTracer{
         }
     }
 
-    private static void printVariables(String line, Block curBlock){
+    private static String printVariables(String line, Block curBlock){
         //Add 5 to make the start after the print
         int start = line.indexOf("print") + 5;
         int end = line.indexOf("*", start);
         String argument = line.substring(start, end).strip(); //Represents the argument of the print
+        line = keepString(end, line);
         if(argument.equals("LOCAL")){
             curBlock.printAllVariables();
         }
         else{
             curBlock.printOneVar(argument);
         }
+        return line;
+    }
+
+    private static String keepString(int end, String line){
+        return line.substring(end + 1).strip();
     }
 }
