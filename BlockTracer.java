@@ -24,7 +24,7 @@ public class BlockTracer{
             BufferedReader stdin = new BufferedReader(inStream);
             String line = "";
             while((line = stdin.readLine()) != null){
-//                System.out.println(line);
+                System.out.println(line);
                 if(line.contains("{")){
                     blockStack.push(new Block());
                 }
@@ -58,11 +58,12 @@ public class BlockTracer{
         String assignments[] = new String[BLOCK_CAPACITY];
         int commaIndex = 0;
         int index = 0;
-        while((commaIndex = assignment.indexOf(",", commaIndex + 1)) != -1){
-            assignments[index++] = assignment.substring(0, commaIndex);
-            assignment = keepString(commaIndex, line);
+        while((commaIndex = assignment.indexOf(",")) != -1){
+            assignments[index] = assignment.substring(0, commaIndex);
+            assignment = keepString(commaIndex, assignment);
             index++;
         }
+        assignments[index++] = assignment;
         for(int i = 0; i < index; i++){
             if(assignments[i].indexOf("=") != -1){
                 evalAssignment(assignments[i], curBlock);
@@ -107,7 +108,7 @@ public class BlockTracer{
         return line;
     }
 
-    private static String keepString(int end, String line){
-        return line.substring(end + 1).strip();
+    private static String keepString(int end, String string){
+        return string.substring(end + 1).strip();
     }
 }
