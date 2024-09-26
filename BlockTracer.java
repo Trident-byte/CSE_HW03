@@ -32,7 +32,7 @@ public class BlockTracer{
                     line = addNewVariable(line, blockStack.peek());
                 }
                 while (line.contains("/*$print")){
-                    line = printVariables(line, blockStack.peek());
+                    line = printVariables(line, blockStack);
                 }
                 if(line.contains("}")){
                     blockStack.pop();
@@ -93,19 +93,31 @@ public class BlockTracer{
         }
     }
 
-    private static String printVariables(String line, Block curBlock){
+    private static String printVariables(String line, Stack<Block> blockStack){
         //Add 5 to make the start after the print
         int start = line.indexOf("print") + 5;
         int end = line.indexOf("*", start);
         String argument = line.substring(start, end).strip(); //Represents the argument of the print
         line = keepString(end, line);
-        if(argument.equals("LOCAL")){
-            curBlock.printAllVariables();
-        }
-        else{
-            curBlock.printOneVar(argument);
-        }
+        printBlock(argument, blockStack);
         return line;
+    }
+
+    private static void printBlock(String variable, Stack<Block> blockStack){
+        Block curBlock = blockStack.peek();
+        try {
+            if(variable.equals("LOCAL")){
+                curBlock.printAllVariables();
+            }
+            else {
+                curBlock.printOneVar(variable);
+            }
+        }
+        catch(Exception e){
+            blockStack.pop();
+            printBlock(variable, blockStack);
+            blockStack.push(curBlock);
+        }
     }
 
     private static String keepString(int end, String string){
